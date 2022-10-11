@@ -8,7 +8,7 @@ const MainNavigation = () => {
 			<div className = {classes.logo}>
 				<NavLink
 					to = "/"
-				>GQ</NavLink>
+				>MQ</NavLink>
 			</div>
 			<nav className = {classes.nav}>
 				<ul>
