@@ -1,14 +1,22 @@
-import React, {Suspense} from "react";
+import React from "react";
 import {
+	createBrowserRouter,
+	createRoutesFromElements,
 	Link,
 	Navigate,
 	Route,
-	Routes,
+	RouterProvider,
 } from "react-router-dom";
-import Comments from "./components/comments/Comments";
-import Layout from "./components/layout/Layout";
+import Comments, {
+	addCommentAction,
+	commentsLoader
+} from "./components/comments/Comments";
 import LoadingSpinner from "./components/UI/LoadingSpinner";
-import AllQuotes from "./pages/AllQuotes";
+import {addQuoteAction} from "./pages/NewQuote";
+import {singleQuoteLoader} from "./pages/QuoteDetail";
+import RootLayout from "./pages/RootLayout";
+import AllQuotes, {allQuotesLoader} from "./pages/AllQuotes";
+import ErrorLayout from "./pages/ErrorLayout";
 
 // Lazy loading to optimize the code
 const NewQuote = React.lazy(
@@ -24,56 +32,68 @@ const QuoteDetail = React.lazy(
 		import("./pages/QuoteDetail")
 );
 
+const router = createBrowserRouter(createRoutesFromElements(
+	<Route path = "/"
+		   element = {<RootLayout></RootLayout>}
+		   errorElement = {<ErrorLayout></ErrorLayout>}
+	>
+		<Route
+			index
+			element = {
+				<Navigate replace
+						  to = "/quotes"
+				></Navigate>
+			}
+		>
+		</Route>
+		<Route
+			path = "/quotes"
+			element = {<AllQuotes></AllQuotes>}
+			loader = {allQuotesLoader}
+		>
+		</Route>
+		<Route path = "/quotes/:quoteId/*"
+			   element = {<QuoteDetail></QuoteDetail>}
+			   loader={singleQuoteLoader}
+		>
+			<Route
+				path = ""
+				element = {
+					<Link className = "btn"
+						  to = "comments"
+					>Comment</Link>
+				}
+			>
+			</Route>
+			<Route path = "comments"
+				   element = {<Comments></Comments>}
+				   loader={commentsLoader}
+				   action={addCommentAction}
+			>
+			</Route>
+		</Route>
+		<Route path = "/new-quote"
+			   element = {<NewQuote></NewQuote>}
+			   action={addQuoteAction}
+		>
+		</Route>
+		<Route path = "*"
+			   element = {<NotFound></NotFound>}
+		>
+		</Route>
+	</Route>
+))
+
 function App() {
 	return (
-		<Layout>
-			<Suspense fallback = {
-				<div className = "centered">
-					<LoadingSpinner></LoadingSpinner>
-				</div>
-			}
-			>
-				<Routes>
-					<Route
-						path = "/"
-						element = {<Navigate replace
-											 to = "/quotes"
-						></Navigate>}
-					>
-					</Route>
-					<Route
-						path = "/quotes"
-						element = {<AllQuotes></AllQuotes>}
-					>
-					</Route>
-					<Route path = "/quotes/:quoteId/*"
-						   element = {<QuoteDetail></QuoteDetail>}
-					>
-						<Route
-							path = ""
-							element = {
-								<Link className = "btn"
-									  to = "comments"
-								>Comment</Link>
-							}
-						>
-						</Route>
-						<Route path = "comments"
-							   element = {<Comments></Comments>}
-						>
-						</Route>
-					</Route>
-					<Route path = "/new-quote"
-						   element = {<NewQuote></NewQuote>}
-					>
-					</Route>
-					<Route path = "*"
-						   element = {<NotFound></NotFound>}
-					>
-					</Route>
-				</Routes>
-			</Suspense>
-		</Layout>
+		<React.Suspense fallback = {
+			<div className = "centered">
+				<LoadingSpinner></LoadingSpinner>
+			</div>
+		}
+		>
+			<RouterProvider router = {router}></RouterProvider>
+		</React.Suspense>
 	);
 }
 

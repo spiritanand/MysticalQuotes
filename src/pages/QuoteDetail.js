@@ -1,45 +1,19 @@
-import React, {useEffect} from 'react';
+import React from 'react';
 import {
 	Link,
 	Outlet,
-	useParams,
+	useLoaderData,
 } from "react-router-dom";
 import HighlightedQuote from "../components/quotes/HighlightedQuote";
-import LoadingSpinner from "../components/UI/LoadingSpinner";
-import useHttp from "../hooks/use-http";
 import {getSingleQuote} from "../lib/api";
 
 const QuoteDetail = () => {
-	const params = useParams();
-	const quoteId = params.quoteId;
+	const loadedQuote = useLoaderData();
 	
-	const {
-			  sendRequest,
-			  data: loadedQuote,
-			  status,
-			  error
-		  } = useHttp(getSingleQuote, true);
-	
-	useEffect(() => {
-		sendRequest(quoteId);
-	}, [
-		sendRequest,
-		quoteId
-	]);
-	
-	if (status === "pending") {
-		return <div className = "centered">
-			<LoadingSpinner></LoadingSpinner>
-		</div>
-	}
-	
-	if (status === "error") {
-		return <p className = "centered focused">{error}</p>
-	}
-	
-	if (status === "completed" && !loadedQuote.text) {
+	if (!loadedQuote.text) {
 		return <p>No quote found</p>
 	}
+	
 	return (
 		<div>
 			<Link className = "btn"
@@ -56,3 +30,8 @@ const QuoteDetail = () => {
 };
 
 export default QuoteDetail;
+
+export function singleQuoteLoader({params}) {
+	const {quoteId} = params;
+	return getSingleQuote(quoteId);
+}

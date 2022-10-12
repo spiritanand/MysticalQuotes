@@ -39,6 +39,14 @@ export async function getSingleQuote(quoteId) {
 }
 
 export async function addQuote(quoteData) {
+	const quote = quoteData.text;
+	const author = quoteData.author;
+	if (quote.trim().length < 7 || author.trim().length < 3)
+		throw({
+			message: "Invalid input!",
+			status : 422,
+		});
+	
 	const response = await fetch(`${FIREBASE_DOMAIN}/quotes.json`, {
 		method : 'POST',
 		body   : JSON.stringify(quoteData),
@@ -56,6 +64,14 @@ export async function addQuote(quoteData) {
 }
 
 export async function addComment(requestData) {
+	const commentText = requestData.commentData.text;
+	if (commentText.trim().length < 3)
+		throw({
+			message: "Comment length too short",
+			status : 422,
+		});
+	
+	
 	const response = await fetch(
 		`${FIREBASE_DOMAIN}/comments/${requestData.quoteId}.json`, {
 			method : 'POST',

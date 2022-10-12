@@ -1,64 +1,32 @@
 import {
 	Fragment,
-	useRef,
 } from 'react';
+import {Form} from "react-router-dom";
 
 import Card from '../UI/Card';
-import LoadingSpinner from '../UI/LoadingSpinner';
 import classes from './QuoteForm.module.css';
 
-const QuoteForm = (props) => {
-	// const [isFormFocussed, setIsFormFocussed] = useState(false);
-	
-	const authorInputRef = useRef();
-	const textInputRef = useRef();
-	
-	function submitFormHandler(event) {
-		event.preventDefault();
-		
-		const enteredAuthor = authorInputRef.current.value;
-		const enteredText = textInputRef.current.value;
-		
-		// optional: Could validate here
-		
-		props.onAddQuote({
-			author: enteredAuthor,
-			text  : enteredText
-		});
-	}
-	
-	// function finishedEnteringHandler() {
-	// 	setIsFormFocussed(false);
-	// }
-	
+const QuoteForm = () => {
 	return (
 		<Fragment>
-			{/*<Prompt when = {isFormFocussed}*/}
-			{/*		message = {(location) => "Are you sure you want" +*/}
-			{/*			" to exit page? All you form's data will be lost."}></Prompt>*/}
 			<Card>
-				<form
+				<Form
 					className = {classes.form}
-					onSubmit = {submitFormHandler}
+					method="post"
+					action=""
 				>
-					{props.isLoading && (
-						<div className = {classes.loading}>
-							<LoadingSpinner/>
-						</div>
-					)}
-					
 					<div className = {classes.control}>
 						<label htmlFor = "author">Author</label>
 						<input type = "text"
+							   name="author"
 							   id = "author"
-							   ref = {authorInputRef}
 						/>
 					</div>
 					<div className = {classes.control}>
 						<label htmlFor = "text">Text</label>
 						<textarea id = "text"
+								  name="text"
 								  rows = "5"
-								  ref = {textInputRef}
 						></textarea>
 					</div>
 					<div className = {classes.actions}>
@@ -67,7 +35,7 @@ const QuoteForm = (props) => {
 						>Add Quote
 						</button>
 					</div>
-				</form>
+				</Form>
 			</Card>
 		</Fragment>
 	);

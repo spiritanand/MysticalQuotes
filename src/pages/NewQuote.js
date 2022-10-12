@@ -1,30 +1,40 @@
-import React, {useEffect} from 'react';
-import {useNavigate} from "react-router-dom";
+import React, {Fragment} from 'react';
+import {
+	redirect,
+	useActionData
+} from "react-router-dom";
 import QuoteForm from "../components/quotes/QuoteForm";
-import useHttp from "../hooks/use-http";
 import {addQuote} from "../lib/api";
 
 const NewQuote = () => {
-	const {
-			  sendRequest,
-			  status
-		  } = useHttp(addQuote);
-	const nav = useNavigate();
-	
-	
-	function addQuoteHandler(quoteData) {
-		sendRequest(quoteData);
-	}
-	
-	useEffect(() => {
-		if (status === "completed")
-			nav("/quotes");
-	}, [status, nav]);
-	
+	const errorData = useActionData();
 	
 	return (
-		<QuoteForm isLoadind={status} onAddQuote = {addQuoteHandler}></QuoteForm>
+		<Fragment>
+			{errorData && errorData.status &&
+				<p>{errorData.message}</p>}
+			<QuoteForm></QuoteForm>
+		</Fragment>
 	);
 };
 
 export default NewQuote;
+
+export async function addQuoteAction({request}) {
+	const formData = await request.formData();
+	const postQuoteData = {
+		author: formData.get("author"),
+		text  : formData.get("text"),
+	}
+	
+	try {
+		await addQuote(postQuoteData);
+	} catch (err) {
+		if (err.status === 422)
+			return err;
+		
+		throw err;
+	}
+	
+	return redirect("/");
+}
